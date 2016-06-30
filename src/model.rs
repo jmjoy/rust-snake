@@ -10,21 +10,8 @@ macro_rules! linked_list {
     }};
 }
 
-#[derive(Debug, Copy, Clone)]
-enum GameElement {
-    Empty,
-    Snake{isHeader: bool},
-    Food,
-}
-
-impl Default for GameElement {
-    fn default() -> Self {
-        GameElement::Empty
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
-enum Direction {
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Direction {
     Left,
     Right,
     Up,
@@ -49,13 +36,14 @@ impl Rand for Point {
 pub const CANVAS_WIDTH: usize = 40;
 pub const CANVAS_HEIGHT: usize = 20;
 
-type Canvas = [[GameElement; CANVAS_WIDTH]; CANVAS_HEIGHT];
+type SnakeBody = LinkedList<Point>;
 
 #[derive(Default)]
 pub struct Game {
     food: Point,
-    snake: LinkedList<Point>,
+    snake: SnakeBody,
     direction: Direction,
+    pub snake_speed: i32,
 }
 
 impl Game {
@@ -63,6 +51,7 @@ impl Game {
         let y = CANVAS_HEIGHT / 2;
         let mut game = Game {
             snake: linked_list![Point(4, y), Point(3, y), Point(2, y), Point(1, y)],
+            snake_speed: 10,
             .. Default::default()
         };
         game.set_food();
@@ -77,8 +66,8 @@ impl Game {
                 let point = ::rand::random::<Point>();
                 let point = match point {
                     Point(x, y) => Point(
-                        x % (CANVAS_WIDTH - 1),
-                        y % (CANVAS_HEIGHT - 1),
+                        x % (CANVAS_WIDTH - 2),
+                        y % (CANVAS_HEIGHT - 2),
                     ),
                 };
                 if let None = self.snake.iter().find(|&&x| x == point) {
@@ -95,7 +84,37 @@ impl Game {
         self.food
     }
 
-    fn change_direction(&mut self, direction: Direction) {
+    pub fn get_snake(&self) -> SnakeBody {
+        self.snake.clone()
+    }
+
+    pub fn change_direction(&mut self, direction: Direction) {
         self.direction = direction;
+    }
+
+    pub fn snake_move(&mut self) {
+        self.snake.pop_back();
+
+        let header = match self.snake.front().unwrap() {
+            &Point(x, y) => match self.direction {
+                Direction::Left if self.direction != Direction::Right =>
+                    Some(Point(x - 1, y)),
+
+                Direction::Right if self.direction != Direction::Left =>
+                    Some(Point(x + 1, y)),
+
+                Direction::Up if self.direction != Direction::Down =>
+                    Some(Point(x, y - 1)),
+
+                Direction::Down if self.direction != Direction::Up =>
+                    Some(Point(x, y + 1)),
+
+                _ => None,
+            }
+        };
+
+        if let Some(header) = header {
+            self.snake.push_front(header);
+        }
     }
 }
