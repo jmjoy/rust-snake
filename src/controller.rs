@@ -1,22 +1,35 @@
+use std::time::{Duration, SystemTime};
+use std::thread;
 use std::default::Default;
 use rustbox::{RustBox, Event};
 use rustbox::keyboard::Key;
 
-fn run() {
+pub fn run() {
     let rustbox = RustBox::init(Default::default()).unwrap();
-
     let game = ::model::Game::new();
-    ::view::render(rustbox, game);
 
-    rustbox.present();
+    let fps = Duration::from_millis(33);
+
+    ::view::render(&rustbox, &game);
 
     loop {
-        let event = rustbox.poll_event(false).unwrap();
-        if let Event::KeyEvent(key) = event {
-            match key {
-                Key::Char('q') => break,
-                _ => {},
-            }
+        let begin_time = SystemTime::now();
+
+        let event = rustbox.peek_event(Duration::from_millis(200), false).unwrap();
+        match event {
+            Event::KeyEvent(key) => {
+                match key {
+                    Key::Esc => break,
+                    _ => {},
+                }
+            },
+            Event::NoEvent => {},
+            _ => {},
+        }
+
+        let elapsed_time = begin_time.elapsed().unwrap();
+        if elapsed_time < fps {
+            thread::sleep(fps - elapsed_time);
         }
     }
 }

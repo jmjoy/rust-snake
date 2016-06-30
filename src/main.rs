@@ -5,5 +5,5 @@ mod controller;
 mod view;
 
 fn main() {
-
+    ::controller::run();
 }
