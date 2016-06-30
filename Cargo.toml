@@ -5,3 +5,4 @@ authors = ["jmjoy"]
 
 [dependencies]
 rustbox = "*"
+rand = "0.3"

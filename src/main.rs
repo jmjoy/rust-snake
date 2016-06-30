@@ -1,4 +1,5 @@
 extern crate rustbox;
+extern crate rand;
 
 mod model;
 mod controller;

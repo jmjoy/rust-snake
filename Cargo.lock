@@ -2,6 +2,7 @@
 name = "snake"
 version = "0.1.0"
 dependencies = [
+ "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustbox 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
