@@ -5,23 +5,34 @@ const MARGIN_TOP: usize = 0;
 
 pub fn render(rustbox: &RustBox, game: &::model::Game) {
     draw_frame(rustbox);
-    draw_snake(rustbox, game);
-    draw_food(rustbox, game);
+    match game.status {
+        ::model::GameStatus::Normal => {
+            draw_snake(rustbox, game);
+            draw_food(rustbox, game);
+        },
+
+        ::model::GameStatus::Succ => {
+            unimplemented!();
+        },
+
+        ::model::GameStatus::Fail => {
+            let (x, y) = (::model::CANVAS_WIDTH / 3, ::model::CANVAS_HEIGHT / 2);
+            rustbox.print(x, y, ::rustbox::RB_NORMAL, Color::Red, Color::Default, "You lose!");
+        },
+    };
     rustbox.present();
 }
 
 fn draw_snake(rustbox: &RustBox, game: &::model::Game) {
     let snake = game.get_snake();
     for &::model::Point(x, y) in snake.iter() {
-        // '⊙'
-        draw_char_normal(rustbox, x+1, y+MARGIN_TOP+1, 'o');
+        draw_char_normal(rustbox, x+1, y+MARGIN_TOP+1, 'o'); // '⊙'
     }
 }
 
 fn draw_food(rustbox: &RustBox, game: &::model::Game) {
     let ::model::Point(x, y) = game.get_food();
-    // '❤'
-    draw_char_normal(rustbox, x+1, y+MARGIN_TOP+1, '$');
+    draw_char_normal(rustbox, x+1, y+MARGIN_TOP+1, '$'); // '❤'
 
     // debug(rustbox, &*format!("{:?}", game.get_food()));
 }

@@ -1,5 +1,6 @@
 use std::default::Default;
 use std::collections::{LinkedList};
+use std::ops::Neg;
 use rand::Rand;
 
 macro_rules! linked_list {
@@ -16,6 +17,19 @@ pub enum Direction {
     Right,
     Up,
     Down,
+}
+
+impl Neg for Direction {
+    type Output = Direction;
+
+    fn neg(self) -> Direction {
+        match self {
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+        }
+    }
 }
 
 impl Default for Direction {
@@ -57,7 +71,7 @@ pub struct Game {
     snake: SnakeBody,
     direction: Direction,
     pub snake_speed: i32,
-    status: GameStatus,
+    pub status: GameStatus,
 }
 
 impl Game {
@@ -65,15 +79,11 @@ impl Game {
         let y = CANVAS_HEIGHT / 2;
         let mut game = Game {
             snake: linked_list![Point(4, y), Point(3, y), Point(2, y), Point(1, y)],
-            snake_speed: 10,
+            snake_speed: 5,
             .. Default::default()
         };
         game.set_food();
         game
-    }
-
-    pub fn get_status(&self) -> GameStatus {
-        self.status
     }
 
     pub fn set_food(&mut self) -> bool {
@@ -107,49 +117,45 @@ impl Game {
     }
 
     pub fn change_direction(&mut self, direction: Direction) {
-        self.direction = direction;
+        if direction != -self.direction {
+            self.direction = direction;
+        }
     }
 
     pub fn snake_move(&mut self) -> bool {
-        self.snake.pop_back();
-
         let header = match self.snake.front().unwrap() {
             &Point(x, y) => match self.direction {
-                Direction::Left if self.direction != Direction::Right => {
+                Direction::Left => {
                     if x == 0 {
                         return false;
                     }
-                    Some(Point(x - 1, y))
+                    Point(x - 1, y)
                 }
 
-                Direction::Right if self.direction != Direction::Left => {
-                    if x == CANVAS_WIDTH - 1 {
+                Direction::Right => {
+                    if x == CANVAS_WIDTH - 3 {
                         return false;
                     }
-                    Some(Point(x + 1, y))
+                    Point(x + 1, y)
                 }
 
-                Direction::Up if self.direction != Direction::Down => {
+                Direction::Up => {
                     if y == 0 {
                         return false;
                     }
-                    Some(Point(x, y - 1))
+                    Point(x, y - 1)
                 }
 
-                Direction::Down if self.direction != Direction::Up => {
-                    if y == CANVAS_HEIGHT - 1 {
+                Direction::Down => {
+                    if y == CANVAS_HEIGHT - 3 {
                         return false;
                     }
-                    Some(Point(x, y + 1))
+                    Point(x, y + 1)
                 }
-
-                _ => None,
             }
         };
 
-        if let Some(header) = header {
-            self.snake.push_front(header);
-        }
+        self.snake.push_front(header);
 
         true
     }
@@ -165,4 +171,20 @@ impl Game {
 
         false
     }
+
+    pub fn eat_food(&mut self) -> bool {
+        let result = {
+            let header = self.snake.front().unwrap();
+            *header != self.food
+        };
+        if result {
+            self.snake.pop_back();
+            return true;
+        }
+        if !self.set_food() {
+            return false;
+        }
+        true
+    }
+
 }

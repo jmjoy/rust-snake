@@ -27,13 +27,13 @@ pub fn run() {
             }
         }
 
-        if game.get_status() == ::model::GameStatus::Normal {
+        if game.status == ::model::GameStatus::Normal {
             if speed_counter == game.snake_speed {
-                if game.snake_move() && !game.check_eat_himslef() {
-
+                if !game.snake_move() || game.check_eat_himslef() || !game.eat_food() {
+                    game.status = ::model::GameStatus::Fail;
                 }
-                speed_counter = 0;
 
+                speed_counter = 0;
             } else {
                 speed_counter += 1;
             }
