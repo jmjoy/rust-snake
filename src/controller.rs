@@ -27,12 +27,16 @@ pub fn run() {
             }
         }
 
-        if speed_counter == game.snake_speed {
-            game.snake_move();
-            speed_counter = 0;
+        if game.get_status() == ::model::GameStatus::Normal {
+            if speed_counter == game.snake_speed {
+                if game.snake_move() && !game.check_eat_himslef() {
 
-        } else {
-            speed_counter += 1;
+                }
+                speed_counter = 0;
+
+            } else {
+                speed_counter += 1;
+            }
         }
 
         ::view::render(&rustbox, &game);
