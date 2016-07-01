@@ -9,6 +9,7 @@ pub fn render(rustbox: &RustBox, game: &::model::Game) {
         ::model::GameStatus::Normal => {
             draw_snake(rustbox, game);
             draw_food(rustbox, game);
+            draw_score(rustbox, game);
         },
 
         ::model::GameStatus::Succ => {
@@ -37,6 +38,11 @@ fn draw_food(rustbox: &RustBox, game: &::model::Game) {
     // debug(rustbox, &*format!("{:?}", game.get_food()));
 }
 
+fn draw_score(rustbox: &RustBox, game: &::model::Game) {
+    let (x, y) = (::model::CANVAS_WIDTH + 3, 5);
+    rustbox.print(x, y, ::rustbox::RB_NORMAL, Color::Default, Color::Default, &*format!("Score: {}", game.get_score()));
+}
+
 fn draw_frame(rustbox: &RustBox) {
     let x = ::model::CANVAS_WIDTH - 1;
     let y = ::model::CANVAS_HEIGHT - 1;
@@ -62,12 +68,16 @@ fn draw_frame(rustbox: &RustBox) {
             draw_char_normal(rustbox, i, j, '.');
         }
     }
+
+    let x = ::model::CANVAS_WIDTH + 3;
+    rustbox.print(x, 3, ::rustbox::RB_BOLD, Color::Default, Color::Default, "Snake");
 }
 
 fn draw_char_normal(rustbox: &RustBox, x: usize, y: usize, c: char) {
     rustbox.print_char(x, y, ::rustbox::RB_NORMAL, Color::Default, Color::Default, c);
 }
 
+#[allow(dead_code)]
 pub fn debug<T: Debug>(rustbox: &RustBox, content: T) {
     let y = ::model::CANVAS_HEIGHT + MARGIN_TOP;
     let content = &*format!("{:?}  ", content);

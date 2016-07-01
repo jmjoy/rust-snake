@@ -63,7 +63,7 @@ impl Rand for Point {
 pub const CANVAS_WIDTH: usize = 40;
 pub const CANVAS_HEIGHT: usize = 20;
 
-type SnakeBody = LinkedList<Point>;
+pub type SnakeBody = LinkedList<Point>;
 
 #[derive(Default)]
 pub struct Game {
@@ -72,6 +72,7 @@ pub struct Game {
     direction: Direction,
     pub snake_speed: i32,
     pub status: GameStatus,
+    score: u32,
 }
 
 impl Game {
@@ -79,7 +80,7 @@ impl Game {
         let y = CANVAS_HEIGHT / 2;
         let mut game = Game {
             snake: linked_list![Point(4, y), Point(3, y), Point(2, y), Point(1, y)],
-            snake_speed: 5,
+            snake_speed: 3,
             .. Default::default()
         };
         game.set_food();
@@ -114,6 +115,10 @@ impl Game {
 
     pub fn get_snake(&self) -> SnakeBody {
         self.snake.clone()
+    }
+
+    pub fn get_score(&self) -> u32 {
+        self.score
     }
 
     pub fn change_direction(&mut self, direction: Direction) {
@@ -184,6 +189,7 @@ impl Game {
         if !self.set_food() {
             return false;
         }
+        self.score += 1;
         true
     }
 
